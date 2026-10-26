@@ -91,7 +91,7 @@ def _player(p, detail: bool = False):
                            ("last_15", f"{SEASON}_last_15"),
                            ("last_30", f"{SEASON}_last_30")):
             st = _stats(p, key)
-            if st:
+            if st and st != season:
                 d[label] = st
     return d
 
@@ -149,12 +149,18 @@ def matchup_scores(matchup_period: int | None = None) -> dict:
     lg = league(max_age=60)
     period = matchup_period or lg.currentMatchupPeriod
     names = {t.team_id: t.team_name for t in lg.teams}
+
+    def team_name(t):
+        if hasattr(t, "team_name"):
+            return t.team_name
+        return names.get(t, "BYE")
+
     out = []
     for b in lg.box_scores(matchup_period=period):
         def side(prefix):
             stats = getattr(b, f"{prefix}_stats", {}) or {}
             return {
-                "team": names.get(getattr(b, f"{prefix}_team"), "BYE"),
+                "team": team_name(getattr(b, f"{prefix}_team")),
                 "score": f"{getattr(b, f'{prefix}_wins', 0)}-"
                          f"{getattr(b, f'{prefix}_losses', 0)}-"
                          f"{getattr(b, f'{prefix}_ties', 0)}",
