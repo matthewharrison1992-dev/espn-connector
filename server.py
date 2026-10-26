@@ -156,17 +156,16 @@ def matchup_scores(matchup_period: int | None = None) -> dict:
         return names.get(t, "BYE")
 
     out = []
-    for b in lg.box_scores(matchup_period=period):
+    for m in lg.scoreboard(matchupPeriod=period):
         def side(prefix):
-            stats = getattr(b, f"{prefix}_stats", {}) or {}
+            cats = getattr(m, f"{prefix}_team_cats", None) or {}
+            res = [c.get("result") for c in cats.values()]
             return {
-                "team": team_name(getattr(b, f"{prefix}_team")),
-                "score": f"{getattr(b, f'{prefix}_wins', 0)}-"
-                         f"{getattr(b, f'{prefix}_losses', 0)}-"
-                         f"{getattr(b, f'{prefix}_ties', 0)}",
-                "categories": {c: {"value": _round(stats[c]["value"]),
-                                   "result": stats[c].get("result")}
-                               for c in CATS if c in stats},
+                "team": team_name(getattr(m, f"{prefix}_team")),
+                "score": f"{res.count('WIN')}-{res.count('LOSS')}-{res.count('TIE')}",
+                "categories": {c: {"value": _round(cats[c]["score"]),
+                                   "result": cats[c].get("result")}
+                               for c in CATS if c in cats},
             }
         out.append({"home": side("home"), "away": side("away")})
     return {"matchup_period": period, "matchups": out}
