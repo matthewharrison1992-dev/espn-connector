@@ -1,2 +1,4 @@
 mcp>=1.9,<2
 espn-api>=0.45
+requests
+tzdata

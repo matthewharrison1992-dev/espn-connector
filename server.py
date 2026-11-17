@@ -214,5 +214,11 @@ def player_stats(name: str) -> dict:
     return d
 
 
+# Northland v2: extra read-only tools (nba_schedule, league_settings, player_gamelog,
+# prior_season, transactions_history, espn_debug). See espn_v2_tools.py.
+from espn_v2_tools import register  # noqa: E402
+register(mcp)
+
+
 if __name__ == "__main__":
     mcp.run(transport="streamable-http")
